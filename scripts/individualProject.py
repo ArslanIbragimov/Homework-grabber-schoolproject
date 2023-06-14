@@ -17,10 +17,11 @@ def path(pathToFile):
 config = ConfigObj(path('/Important/config.ini'))
 
 # Api data from - https://my.telegram.org/
-
+# Данные об api_id , api_hash брать отсюда - https://my.telegram.org/
 api_id = 0
 api_hash = ''
-session_name = ''
+session_name = 'HomeworkApp'
+
 
 client = TelegramClient(session_name, api_id, api_hash)
 
@@ -29,7 +30,7 @@ async def main():
     filter_listFalse = {"False", "false", "f", "FALSE", "F", "0", "афдыу", "Афдыу", "АФДЫУ"}
 
     filter_listTrue = {"True", "true", "t", "TRUE", "T", "1", "екгу", "Екгу", "ЕКГУ"}
-
+# Фильтр слов для ограничения данных (можно убрать, если в беседе говорят только по делу) 
     hWDict = {
         'упражнения', 'задание', 'уроки', 'работа', 'учёба', 'урок', 'тетрадь', 'занятие', 'дневник', 'учитель',
         'ученик',
@@ -43,11 +44,15 @@ async def main():
         'Написать', 'написать', 'физику', 'докуменn', 'журнал', 'информатика', 'стра', 'стр'
     }
     if not await client.is_user_authorized():
+        # Запрашиваем номер телефона пользователя приложением)
         phone_number = int(input('Enter phone number : '))
         await client.send_code_request(phone_number)
+        # В личные сообщения телеграмма приходит сообщение, нужно его ввести
         await client.sign_in(phone_number, input('Enter code: '))
+    # Создание сессии    
     await client.start()
 
+    
     dayToday = datetime.datetime.now().day
     lastdays = 0
 
@@ -55,7 +60,7 @@ async def main():
         lastdays += 2
     else:
         lastdays += 1
-
+    # Парсинг данных из конфига (название чата)
     chatName = config['TlAuth']['class_chat']
     dayMsg = datetime.datetime.now().day - lastdays
     monthMsg = datetime.datetime.now().month
@@ -70,7 +75,8 @@ async def main():
                 chatName = dialog.name
                 break
     f = open(path('/Result/Homework.txt'), 'w')
-
+    
+    # Парсинг данных из конфига (нужно ли использовать фильтр слов?)
     filter_messages = config['TlSettings']['use_filter']
 
     async for msg in client.iter_messages(entity=chatName, offset_date=dateMsg, limit=None, reverse=True,
@@ -92,6 +98,7 @@ async def main():
                 if filter_messages in filter_listFalse:
                     print(str(hour + ':' + minute + ":" + second + ' [' + frstName + ']: ' + msg.text))
                     f.write(str(hour + ':' + minute + ":" + second + ' [' + frstName + ']: ' + msg.text))
+    # Закрытие потока для вывода информации в текстовый документ
     f.close()
 
 
