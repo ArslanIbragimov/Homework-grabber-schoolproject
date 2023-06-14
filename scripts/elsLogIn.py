@@ -20,21 +20,26 @@ def path(pathToFile):
 
 # variables:
 config = configparser.ConfigParser()
+# Ссылка на сайт электронного журнала
 url = 'https://elschool.ru/'
 browser = webdriver.Chrome(r'Important/chromedriver.exe', options=options)
 iniPath = path('/Important/config.ini')
 config.read(iniPath)
+# Парсинг данных из конфига (Ваш пароль и логин от личного кабинета (ваши данные в безопасности) 
 login = config['elschool']['login']
 password = config['elschool']['password']
 
 getWeekday = datetime.datetime.now().weekday()
 
+# Ширина монитора (стандарты: 800, 1280, 1360, 1366, 1600, 1920, 2560)
 width = 1920
+# Высота монитора (стандарты: 600, 720, 768, 768, 900, 1080, 1440)
 height = 1080
 # code:
 
 try:
     def logIn():
+    # Авторизация в личном кабинете
         browser.set_window_size(width=width, height=height)
         browser.get(url=url)
         loginInput = browser.find_element(By.XPATH, '//*[@id="login"]')
